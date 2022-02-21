@@ -7,10 +7,13 @@
 void help(void)
 {
     // Dvhernsi:o:b:B:
-    printf("%s,%s static analyser \n", PACKAGE, VERSION);
-    printf("%s [-e] [-r] [-n] [-s] [-i IN_FILE] [-o OUT_FILE] [-b NGRAM] [-B BLOCKSIZE] \n\n", PACKAGE);
+   printf("%s,%s static analyser \n", PACKAGE, VERSION);
+    printf("%s [-e] [-r] [-n] [-s] [-c [-H HEX]] [-v] [-X [-d DECISION]] [-i IN_FILE] [-o OUT_FILE] [-b NGRAM] [-B BLOCKSIZE] \n\n", PACKAGE);
 
     printf("  -h                print this help\n");
+    printf("  -v                verbose mode\n");
+    printf("  -c                compute concentration of HEX\n");
+    printf("  -X                calculate all the features, use with -d M/B\n");
     printf("  -n                build ngrams of length NGRAM\n");
     printf("  -e                calculate the entropy of IN_FILE\n");
     printf("  -r                Inverte the bytes of IN_FILE\n");
@@ -19,7 +22,7 @@ void help(void)
     printf("  -o [OUT_FILE]     output file\n");
     printf("  -b [NGRAM]        NGRAM size\n");
     printf("  -B [BLOCKSIZE]    devide the file in input to BLOCKSIZE of \n\n");
-
+    printf(" Default parametres: Block size = 1024, ngram = 1\n");
     printf(" Example: %s -e -i FILE.EXE -b 1 -B 256 > FILE.OUT\n\n", PACKAGE);
 }
 void entropyHelp()
