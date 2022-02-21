@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
         case 'D':
             debugFlag = 1;
             break;
-         case 'X': // csvfile
+        case 'X': // csvfile
             csvFlag = 1;
             break;
         case 'c':
@@ -108,8 +108,9 @@ int main(int argc, char *argv[])
         help();
         return -1;
     }
-    if (csvFlag == 1) {
-        
+    if (csvFlag == 1)
+    {
+
         if (inputFile)
         {
             FILE *fp = NULL;
@@ -123,7 +124,7 @@ int main(int argc, char *argv[])
             }
             // get the block count
             long blockCount = blocks_count(fp, block_size);
-            //float *entropy_block = (float *)malloc(blockCount * sizeof(float));
+            // float *entropy_block = (float *)malloc(blockCount * sizeof(float));
             struct tnode *vector = NULL;
             unsigned char buffer_in[block_size];
             size_t byte_read = 0;
@@ -133,19 +134,19 @@ int main(int argc, char *argv[])
                 byte_read = fread(buffer_in, sizeof(char), block_size, fp);
                 // block_byte_values = block_ngram(byte_read, 1, buffer_in);
                 // calculate the four ngram
-                for (size_t i = 0; i < NGRAM; i++)
+                for (size_t i = 0; i < MAXNGRAM; i++)
                 {
-                    vector = ngram(byte_read, i+1 , buffer_in);
+                    vector = ngram(byte_read, i + 1, buffer_in);
                     printf("%f", entropy(vector, byte_read));
-                    if(i+1<=NGRAM) printf(", ");
+                    if (i + 1 <= MAXNGRAM)
+                        printf(", ");
                     printf("%f", simpson_index(vector, byte_read));
-                    if(i+1<NGRAM) printf(", ");
+                    if (i + 1 < MAXNGRAM)
+                        printf(", ");
                 }
                 printf(", %s\n", decision);
-                
             }
         }
-
     }
     // if it is entropy calculation
     if (entropyFlag == 1)
@@ -190,11 +191,11 @@ int main(int argc, char *argv[])
     // if byte inverse
     if (inverseFlag == 1)
     {
-        
+
         if (verboseFlag == 1)
             printf("Inversing bytes\n");
-        
-        return inverse_bytes(inputFile, outputFile);   
+
+        return inverse_bytes(inputFile, outputFile);
     }
     // if ngram extraction
     if (ngramFlag == 1)
@@ -265,8 +266,9 @@ int main(int argc, char *argv[])
         }
     }
     // if concentration calculation
-    if(concentrationFlag == 1) {
-         if (verboseFlag == 1)
+    if (concentrationFlag == 1)
+    {
+        if (verboseFlag == 1)
             printf("Concentration Calculator\n");
         if (!inputFile)
         {
@@ -286,30 +288,31 @@ int main(int argc, char *argv[])
         struct tnode *root = NULL;
         long byte_read = 0;
         char buffer_in[block_size];
-        struct tnode* node = NULL;
+        struct tnode *node = NULL;
         unsigned char hextemp[2];
         nsize = strlen(hexString) / 2; // to do if nsize is not 2n
-        unsigned char hexvalue[nsize]; //malloc
+        unsigned char hexvalue[nsize]; // malloc
         // convert string to hex
         // 4142 nsize=2
         for (int i = 0; i < nsize; i++)
         {
-            strncpy(hextemp, hexString + (i*2), 2);
-            hexvalue[i] = (char)strtol(hextemp, NULL, 16); 
+            strncpy(hextemp, hexString + (i * 2), 2);
+            hexvalue[i] = (char)strtol(hextemp, NULL, 16);
         }
-    //    for (int i = 0; i < nsize; i++)
-    //    {
-    //         printf("%02x", hexvalue[i]);
-    //    }
-       
+        //    for (int i = 0; i < nsize; i++)
+        //    {
+        //         printf("%02x", hexvalue[i]);
+        //    }
+
         for (int i = 0; i < blocksCount; i++)
         {
             // get the block ngram
             byte_read = fread(buffer_in, sizeof(char), block_size, fp);
             root = ngram(byte_read, nsize, buffer_in);
-            if(node = ngram_count(root, hexvalue, nsize)) 
-                printf("%ld => %f%%\n",node->count, 100*(float)node->count/(float)byte_read);
-            else printf("0\n");
+            if (node = ngram_count(root, hexvalue, nsize))
+                printf("%ld => %f%%\n", node->count, 100 * (float)node->count / (float)byte_read);
+            else
+                printf("0\n");
         }
     }
     // End parsing

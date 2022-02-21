@@ -1,6 +1,7 @@
 // Created by walid hafid
 #define BUFFER_SIZE 1024
-#define NGRAM 4
+#define NGRAM 1
+#define MAXNGRAM 4
 #define PACKAGE "stan"
 #define VERSION "1.0"
 void help();
