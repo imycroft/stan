@@ -9,6 +9,7 @@ void entropyHelp();
 void inverseHelp();
 void ngramHelp();
 void simpsonHelp();
+
 struct tnode {
  unsigned char *ngrm;
  long count;
@@ -20,6 +21,7 @@ float entropy(struct tnode* vector, unsigned long int length);
 //float entropy(unsigned int *byte_count, unsigned long int length);
 int inverse_bytes(char* inputFile, char* outputFile);
 float simpson_index(struct tnode *vector, long block_size);
+float manhaten_distance(struct tnode *vector, long block_size);
 long blocks_count(FILE* fp, unsigned int BLOCK_SIZE);
 unsigned int* block_ngram(unsigned int BLOCK_SIZE, long nsize, unsigned char* buffer);
 // ngram

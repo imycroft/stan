@@ -97,10 +97,24 @@ int main(int argc, char *argv[])
     //
     if (debugFlag == 1)
     {
-        FILE *fp = fopen("debug", "r");
-        FILE *fpout = fopen("output.out", "w");
-        // struct tnode* root = ngram(BUFFER_SIZE, 4, fp);
+        FILE *fp = fopen("debug.txt", "r");
+        //FILE *fpout = fopen("output.out", "w");
         // treeprint(root, fpout);
+        
+        //
+        long blockCount = blocks_count(fp, block_size);
+        struct tnode *root = NULL;
+        size_t byte_read = 0;
+        unsigned char buffer_in[block_size];
+        for (long i = 0; i < blockCount; i++)
+        {
+            // get the block ngram
+            byte_read = fread(buffer_in, sizeof(char), block_size, fp);
+            // block_byte_values = block_ngram(byte_read, 1, buffer_in);
+            root = ngram(byte_read, nsize, buffer_in);
+            manhaten_distance(root, block_size);
+        }
+        //
         return -2;
     }
     if (entropyFlag + inverseFlag + ngramFlag + simpsonFlag + concentrationFlag + csvFlag != 1 || helpFlag == 1)

@@ -7,7 +7,7 @@
 void help(void)
 {
     // Dvhernsi:o:b:B:
-   printf("%s,%s static analyser \n", PACKAGE, VERSION);
+    printf("%s,%s static analyser \n", PACKAGE, VERSION);
     printf("%s [-e] [-r] [-n] [-s] [-c [-H HEX]] [-v] [-X [-d DECISION]] [-i IN_FILE] [-o OUT_FILE] [-b NGRAM] [-B BLOCKSIZE] \n\n", PACKAGE);
 
     printf("  -h                print this help\n");
@@ -158,7 +158,7 @@ int inverse_bytes(char *inputFile, char *outputFile)
     unsigned char buffer_out[BUFFER_SIZE];
     while (byte_read == BUFFER_SIZE)
     {
-      
+
         byte_read = fread(buffer_in, sizeof(unsigned char), BUFFER_SIZE, fp);
         for (int i = 0; i < byte_read; i++)
         {
@@ -177,19 +177,60 @@ float entropy(struct tnode *vector, unsigned long int length)
             entropy(vector->left, length) +
             entropy(vector->right, length));
 }
-float sum_n_1(struct tnode *vector) {
+float sum_n_1(struct tnode *vector)
+{
     if (vector == NULL)
         return 0;
     return (
-           (float)(vector->count * (vector->count - 1)  + 
-           sum_n_1(vector->left) + 
-           sum_n_1(vector->right)) 
-           );
+        (float)(vector->count * (vector->count - 1) +
+                sum_n_1(vector->left) +
+                sum_n_1(vector->right)));
 }
 float simpson_index(struct tnode *vector, long block_size)
 {
-    return sum_n_1(vector) / (float)(block_size * (block_size-1));
+    return sum_n_1(vector) / (float)(block_size * (block_size - 1));
+}
+int count(struct tnode *vector)
+{
+    int c = 1;
+
+    if (vector == NULL)
+        return 0;
+    else
+    {
+        c += count(vector->left);
+        c += count(vector->right);
+        return c;
+     }
+}
+int AddToArray(struct tnode *vector, long arr[], int i)
+{
+     if(vector == NULL)
+          return i;
+
+
+     arr[i] = vector->count;
+     i++;
+     if(vector->left != NULL)
+          i = AddToArray(vector->left, arr, i);
+     if(vector->right != NULL)
+          i = AddToArray(vector->right, arr, i);
+
+     return i;
+}
+float manhaten_distance(struct tnode *vector, long block_size)
+{
+    int size = count(vector);
+    printf("size of tree = %d\n", size);
+    long *arr = calloc(size, sizeof(long));
+    AddToArray(vector, arr, 0);
+    for (int i = 0; i < size; i++)
+    {
+        printf("%d\n", arr[i]);
     }
+    
+   return 0;
+}
 // ngram
 struct tnode *ngram(unsigned int BLOCK_SIZE, long ngram_size, char *buffer)
 {
@@ -231,26 +272,29 @@ struct tnode *addtree(struct tnode *p, char *w)
 
     return p;
 }
-int hexcmp(unsigned char* str1, unsigned char* str2, long len) {
+int hexcmp(unsigned char *str1, unsigned char *str2, long len)
+{
     for (int i = 0; i < len; i++)
     {
-        if(str1[i] < str2[i]) return -1;
-        if(str1[i] > str2[i]) return 1;
+        if (str1[i] < str2[i])
+            return -1;
+        if (str1[i] > str2[i])
+            return 1;
     }
     return 0;
 }
-struct tnode* ngram_count(struct tnode* vector, unsigned char* value, long size) {
-   
+struct tnode *ngram_count(struct tnode *vector, unsigned char *value, long size)
+{
+
     // Base Cases: root is null or key is present at root
     if (vector == NULL || hexcmp(vector->ngrm, value, size) == 0)
-       return vector ;
+        return vector;
     // value is greater than root's key
     if (hexcmp(vector->ngrm, value, size) < 0)
-       return ngram_count(vector->right, value, size);
- 
+        return ngram_count(vector->right, value, size);
+
     // Key is smaller than root's key
     return ngram_count(vector->left, value, size);
-
 }
 void treeprint(struct tnode *p, FILE *fp, long nsize)
 {
