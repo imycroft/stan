@@ -220,16 +220,19 @@ int AddToArray(struct tnode *vector, long arr[], int i)
 }
 float manhaten_distance(struct tnode *vector, long block_size)
 {
+    float md = 0.0;
     int size = count(vector);
-    printf("size of tree = %d\n", size);
     long *arr = calloc(size, sizeof(long));
     AddToArray(vector, arr, 0);
-    for (int i = 0; i < size; i++)
-    {
-        printf("%d\n", arr[i]);
-    }
     
-   return 0;
+    
+    for (int i = 0; i < size-1; i++)
+    {
+        md += fabs(
+            (float)(arr[i] - arr[i+1]) / (float)block_size
+        );
+    }
+   return md;
 }
 // ngram
 struct tnode *ngram(unsigned int BLOCK_SIZE, long ngram_size, char *buffer)

@@ -15,6 +15,7 @@ int main(int argc, char *argv[])
     int inverseFlag = 0;
     int ngramFlag = 0;
     int simpsonFlag = 0;
+    int manhatenFlag = 0;
     int concentrationFlag = 0;
     long nsize = -1;
     long block_size = -1;
@@ -28,7 +29,7 @@ int main(int argc, char *argv[])
 
     opterr = 0;
 
-    while ((c = getopt(argc, argv, "DXvhernsci:o:b:B:H:d:")) != -1) // e entropy, r invert, n ngram
+    while ((c = getopt(argc, argv, "DXvhernsmci:o:b:B:H:d:")) != -1) // e entropy, r invert, n ngram
     {
         switch (c)
         {
@@ -58,6 +59,9 @@ int main(int argc, char *argv[])
             break;
         case 's':
             simpsonFlag = 1;
+            break;
+        case 'm':
+            manhatenFlag = 1;
             break;
         case 'b':
             nsize = strtol(optarg, NULL, 10);
@@ -97,6 +101,7 @@ int main(int argc, char *argv[])
     //
     if (debugFlag == 1)
     {
+        printf("DEBUG MODE\n");
         FILE *fp = fopen("debug.txt", "r");
         //FILE *fpout = fopen("output.out", "w");
         // treeprint(root, fpout);
@@ -112,16 +117,17 @@ int main(int argc, char *argv[])
             byte_read = fread(buffer_in, sizeof(char), block_size, fp);
             // block_byte_values = block_ngram(byte_read, 1, buffer_in);
             root = ngram(byte_read, nsize, buffer_in);
-            manhaten_distance(root, block_size);
+           printf("mandist:%f\n", manhaten_distance(root, byte_read)) ;
         }
         //
         return -2;
     }
-    if (entropyFlag + inverseFlag + ngramFlag + simpsonFlag + concentrationFlag + csvFlag != 1 || helpFlag == 1)
+    if (entropyFlag + inverseFlag + ngramFlag + simpsonFlag + concentrationFlag + manhatenFlag + csvFlag != 1 || helpFlag == 1)
     {
         help();
         return -1;
     }
+    // if ALL
     if (csvFlag == 1)
     {
 
@@ -142,23 +148,22 @@ int main(int argc, char *argv[])
             struct tnode *vector = NULL;
             unsigned char buffer_in[block_size];
             size_t byte_read = 0;
+            printf("E1,S1,M1,E2,S2,M2,E3,S3,M3,E4,S4,M4,Decision\n");
             for (long i = 0; i < blockCount; i++)
             {
                 // get the block ngram
                 byte_read = fread(buffer_in, sizeof(char), block_size, fp);
                 // block_byte_values = block_ngram(byte_read, 1, buffer_in);
                 // calculate the four ngram
+               
                 for (size_t i = 0; i < MAXNGRAM; i++)
                 {
                     vector = ngram(byte_read, i + 1, buffer_in);
-                    printf("%f", entropy(vector, byte_read));
-                    if (i + 1 <= MAXNGRAM)
-                        printf(", ");
-                    printf("%f", simpson_index(vector, byte_read));
-                    if (i + 1 < MAXNGRAM)
-                        printf(", ");
+                    printf("%f,", entropy(vector, byte_read));
+                    printf("%f,", simpson_index(vector, byte_read));
+                    printf("%f,", manhaten_distance(vector, byte_read));
                 }
-                printf(", %s\n", decision);
+                printf("%s\n", decision);
             }
         }
     }
@@ -277,6 +282,38 @@ int main(int argc, char *argv[])
             printf("byte read %ld\n", sizeof(buffer_in));
             root = ngram(byte_read, nsize, buffer_in);
             printf("%f\n", simpson_index(root, byte_read));
+        }
+    }
+    // if manhaten distance
+    if (manhatenFlag == 1)
+    {
+        if (verboseFlag == 1)
+            printf("Manhaten distance Calculator\n");
+        if (!inputFile)
+        {
+            help(); // TODO add manhatenHelp
+            return -1;
+        }
+        FILE *fp = NULL;
+        fp = fopen(inputFile, "r");
+        if (!fp)
+        {
+            printf("File not found\n");
+            return -1;
+        }
+        
+        
+        long blocksCount = blocks_count(fp, block_size);
+        struct tnode *root = NULL;
+        long byte_read = 0;
+        char buffer_in[block_size];
+        for (int i = 0; i < blocksCount; i++)
+        {
+            // get the block ngram
+            byte_read = fread(buffer_in, sizeof(char), block_size, fp);
+            printf("byte read %ld\n", byte_read);
+            root = ngram(byte_read, nsize, buffer_in);
+            printf("%f\n", manhaten_distance(root, byte_read));
         }
     }
     // if concentration calculation
