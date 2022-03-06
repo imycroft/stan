@@ -184,12 +184,22 @@ int main(int argc, char *argv[])
                 printf("File not found\n");
                 return -1;
             }
-            // get the block count
-            long blockCount = blocks_count(fp, block_size);
-            float *entropy_block = (float *)malloc(blockCount * sizeof(float));
+            // variables
             struct tnode *vector = NULL;
             unsigned char buffer_in[block_size];
             size_t byte_read = 0;
+            // if blocksize = 0 => get the entropy of the whole file
+            if (block_size == 0)
+            {
+               vector = fngram(fp, nsize);
+               printf("%f\n", entropy(vector, file_size(fp)));    
+               return 0;        
+            }
+            
+            // get the block count
+            long blockCount = blocks_count(fp, block_size);
+            float *entropy_block = (float *)malloc(blockCount * sizeof(float));
+            
             for (long i = 0; i < blockCount; i++)
             {
                 // get the block ngram

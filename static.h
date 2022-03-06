@@ -23,12 +23,14 @@ int inverse_bytes(char* inputFile, char* outputFile);
 float simpson_index(struct tnode *vector, long block_size);
 float manhaten_distance(struct tnode *vector, long block_size);
 long blocks_count(FILE* fp, unsigned int BLOCK_SIZE);
+long file_size(FILE *fp);
 unsigned int* block_ngram(unsigned int BLOCK_SIZE, long nsize, unsigned char* buffer);
 // ngram
 /* ngram container for binary tree */
 
-/* extract tokens from word */
+/* extract tokens from block */
 struct tnode* ngram(unsigned int BLOCK_SIZE, long nsize, char* buffer);
+struct tnode *fngram(FILE *fp, long ngram_size);
 /* add ngram to binary tree */
 struct tnode *addtree(struct tnode *, char *);
 /* return memory for new node */

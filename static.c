@@ -7,21 +7,23 @@
 void help(void)
 {
     // Dvhernsi:o:b:B:
-    printf("%s,%s static analyser \n", PACKAGE, VERSION);
-    printf("%s [-e] [-r] [-n] [-s] [-c [-H HEX]] [-v] [-X [-d DECISION]] [-i IN_FILE] [-o OUT_FILE] [-b NGRAM] [-B BLOCKSIZE] \n\n", PACKAGE);
+    printf("%s %s static analyser \n", PACKAGE, VERSION);
+    printf("%s [-e] [-r] [-n] [-s] [-m] [-c [-H HEX]] [-v] [-X [-d DECISION]] [-i IN_FILE] [-o OUT_FILE] [-b NGRAM] [-B BLOCKSIZE] \n\n", PACKAGE);
 
     printf("  -h                print this help\n");
     printf("  -v                verbose mode\n");
     printf("  -c                compute concentration of HEX\n");
-    printf("  -X                calculate all the features, use with -d M/B\n");
+    printf("  -X                calculate all the features, use with -d M or B\n");
     printf("  -n                build ngrams of length NGRAM\n");
     printf("  -e                calculate the entropy of IN_FILE\n");
     printf("  -r                Inverte the bytes of IN_FILE\n");
     printf("  -s                calculate the simpson index\n");
+    printf("  -m                calculate the manhattan distance\n");
     printf("  -i [IN_FILE]      inpute file\n");
     printf("  -o [OUT_FILE]     output file\n");
     printf("  -b [NGRAM]        NGRAM size\n");
-    printf("  -B [BLOCKSIZE]    devide the file in input to BLOCKSIZE of \n\n");
+    printf("  -B [BLOCKSIZE]    devide the file in input to blocks of BLOCKSIZE\n");
+    printf("                    if BLOCKSIZE = 0 the file will not be divided \n\n");
     printf(" Default parametres: Block size = 1024, ngram = 1\n");
     printf(" Example: %s -e -i FILE.EXE -b 1 -B 256 > FILE.OUT\n\n", PACKAGE);
 }
@@ -62,14 +64,18 @@ void simpsonHelp()
 //     }
 //     return entropy;
 // }
-long blocks_count(FILE *fp, unsigned int BLOCK_SIZE)
+long file_size(FILE *fp)
 {
-
     fseek(fp, 0L, SEEK_END);
     long size = ftell(fp);
     rewind(fp);
-    return (size / BLOCK_SIZE) + 1;
+    return size;
 }
+long blocks_count(FILE *fp, unsigned int BLOCK_SIZE)
+{
+    return (file_size(fp) / BLOCK_SIZE) + 1;
+}
+
 unsigned int *block_ngram(unsigned int BLOCK_SIZE, long nsize, unsigned char *buffer)
 {
     long array_size = pow(2, 8 * nsize);
@@ -201,22 +207,21 @@ int count(struct tnode *vector)
         c += count(vector->left);
         c += count(vector->right);
         return c;
-     }
+    }
 }
 int AddToArray(struct tnode *vector, long arr[], int i)
 {
-     if(vector == NULL)
-          return i;
+    if (vector == NULL)
+        return i;
 
+    arr[i] = vector->count;
+    i++;
+    if (vector->left != NULL)
+        i = AddToArray(vector->left, arr, i);
+    if (vector->right != NULL)
+        i = AddToArray(vector->right, arr, i);
 
-     arr[i] = vector->count;
-     i++;
-     if(vector->left != NULL)
-          i = AddToArray(vector->left, arr, i);
-     if(vector->right != NULL)
-          i = AddToArray(vector->right, arr, i);
-
-     return i;
+    return i;
 }
 float manhaten_distance(struct tnode *vector, long block_size)
 {
@@ -224,17 +229,36 @@ float manhaten_distance(struct tnode *vector, long block_size)
     int size = count(vector);
     long *arr = calloc(size, sizeof(long));
     AddToArray(vector, arr, 0);
-    
-    
-    for (int i = 0; i < size-1; i++)
+
+    for (int i = 0; i < size - 1; i++)
     {
         md += fabs(
-            (float)(arr[i] - arr[i+1]) / (float)block_size
-        );
+            (float)(arr[i] - arr[i + 1]) / (float)block_size);
     }
-   return md;
+    return md;
 }
 // ngram
+struct tnode *fngram(FILE *fp, long ngram_size)
+{
+    struct tnode *root = NULL;
+    unsigned char buffer_in[BUFFER_SIZE];
+    unsigned char ptr[ngram_size];
+    unsigned char *buff = NULL;
+    size_t byte_read = 0;
+    long size = file_size(fp);
+    do
+    {
+        byte_read = fread(buffer_in, sizeof(char), BUFFER_SIZE, fp);
+        for (int i = 0; i < byte_read - ngram_size + 1; i++)
+        {
+            buff = buffer_in + i;
+            strncpy(ptr, buff, ngram_size);
+            root = addtree(root, ptr);
+        }
+
+    } while (byte_read == BUFFER_SIZE);
+    return root;
+}
 struct tnode *ngram(unsigned int BLOCK_SIZE, long ngram_size, char *buffer)
 {
     struct tnode *root = NULL;
