@@ -24,6 +24,7 @@ int main(int argc, char *argv[])
     char *outputFile = NULL;
     char *hexString = NULL;
     char *decision = NULL;
+    FILE *fp = NULL;
     int index;
     int c;
 
@@ -98,11 +99,21 @@ int main(int argc, char *argv[])
     // setting the default value for nsize and block_size
     nsize = (nsize == -1) ? 1 : nsize;
     block_size = (block_size == -1) ? BUFFER_SIZE : block_size;
-    //
+    // trying to open the input file
+    if (inputFile)
+    {
+        fp = fopen(inputFile, "rb");
+            if (!fp)
+            {
+                printf("File not found\n");
+                return -1;
+            }
+    }
+    
     if (debugFlag == 1)
     {
         printf("DEBUG MODE\n");
-        FILE *fp = fopen("debug.txt", "r");
+        FILE *fp = fopen("debug.txt", "rb");
         //FILE *fpout = fopen("output.out", "w");
         // treeprint(root, fpout);
         
@@ -133,15 +144,8 @@ int main(int argc, char *argv[])
 
         if (inputFile)
         {
-            FILE *fp = NULL;
+           
             unsigned long int size = 0;
-            //
-            fp = fopen(inputFile, "r");
-            if (!fp)
-            {
-                printf("File not found\n");
-                return -1;
-            }
             // get the block count
             long blockCount = blocks_count(fp, block_size);
             // float *entropy_block = (float *)malloc(blockCount * sizeof(float));
@@ -173,18 +177,10 @@ int main(int argc, char *argv[])
         if (verboseFlag == 1)
             printf("Entropy calculation\n");
         // check for input file
-        if (inputFile)
-        {
-            FILE *fp = NULL;
-            unsigned long int size = 0;
-            //
-            fp = fopen(inputFile, "r");
-            if (!fp)
-            {
-                printf("File not found\n");
-                return -1;
-            }
+        if (fp)
+        { 
             // variables
+            unsigned long int size = 0;
             struct tnode *vector = NULL;
             unsigned char buffer_in[block_size];
             size_t byte_read = 0;
@@ -236,14 +232,6 @@ int main(int argc, char *argv[])
             ngramHelp();
             return -1;
         }
-        FILE *fp = NULL;
-        fp = fopen(inputFile, "r");
-
-        if (!fp)
-        {
-            printf("File not found\n");
-            return -1;
-        }
         long blockCount = blocks_count(fp, block_size);
         struct tnode *root = NULL;
         size_t byte_read = 0;
@@ -270,13 +258,7 @@ int main(int argc, char *argv[])
             simpsonHelp();
             return -1;
         }
-        FILE *fp = NULL;
-        fp = fopen(inputFile, "r");
-        if (!fp)
-        {
-            printf("File not found\n");
-            return -1;
-        }
+        
         unsigned long size = 0;
         long array_size = 0;
         // unsigned int *n_gram = ngram_byte_values(BUFFER_SIZE, nsize, fp, &size, &array_size);
@@ -304,13 +286,7 @@ int main(int argc, char *argv[])
             help(); // TODO add manhatenHelp
             return -1;
         }
-        FILE *fp = NULL;
-        fp = fopen(inputFile, "r");
-        if (!fp)
-        {
-            printf("File not found\n");
-            return -1;
-        }
+        
         
         
         long blocksCount = blocks_count(fp, block_size);
@@ -336,13 +312,7 @@ int main(int argc, char *argv[])
             help();
             return -1;
         }
-        FILE *fp = NULL;
-        fp = fopen(inputFile, "r");
-        if (!fp)
-        {
-            printf("File not found\n");
-            return -1;
-        }
+       
         unsigned long size = 0;
         long array_size = 0;
         long blocksCount = blocks_count(fp, block_size);
