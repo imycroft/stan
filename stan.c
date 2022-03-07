@@ -98,7 +98,7 @@ int main(int argc, char *argv[])
     }
     // setting the default value for nsize and block_size
     nsize = (nsize == -1) ? 1 : nsize;
-    block_size = (block_size == -1) ? BUFFER_SIZE : block_size;
+    block_size = (block_size == -1) ? BLOCK_SIZE : block_size;
     // trying to open the input file
     if (inputFile)
     {

@@ -1,5 +1,5 @@
-// Created by walid hafid
 #define BUFFER_SIZE 1024
+#define BLOCK_SIZE 1024
 #define NGRAM 1
 #define MAXNGRAM 4
 #define PACKAGE "stan"
@@ -16,20 +16,32 @@ struct tnode {
  struct tnode *left;
  struct tnode *right;
 };
-unsigned int* ngram_byte_values(unsigned int BLOCK_SIZE, long nsize, FILE* fp, long unsigned int* size_out, long* array_size_out);
+unsigned int* ngram_byte_values(unsigned int block_size, long nsize, FILE* fp, long unsigned int* size_out, long* array_size_out);
+/**
+ * Compute entropy of the histogram given as a binary tree
+ * @param vector  A pointer to the binary tree containing the histogram values.
+ * @param length  The lenth of the block
+ * @return The entropy of the block
+ */
 float entropy(struct tnode* vector, unsigned long int length);
-//float entropy(unsigned int *byte_count, unsigned long int length);
-int inverse_bytes(char* inputFile, char* outputFile);
+/**
+ * Inverse the Bytes of a given file
+ * @param input_file  The file we want to inverse the bytes.
+ * @param output_file  The output file.
+ * @return 0 if success, negative value if error
+ */
+int inverse_bytes(char* input_file, char* output_file);
 float simpson_index(struct tnode *vector, long block_size);
 float manhaten_distance(struct tnode *vector, long block_size);
-long blocks_count(FILE* fp, unsigned int BLOCK_SIZE);
+long blocks_count(FILE* fp, unsigned int block_size);
 long file_size(FILE *fp);
-unsigned int* block_ngram(unsigned int BLOCK_SIZE, long nsize, unsigned char* buffer);
+unsigned int* block_ngram(unsigned int block_size, long nsize, unsigned char* buffer);
 // ngram
 /* ngram container for binary tree */
 
-/* extract tokens from block */
-struct tnode* ngram(unsigned int BLOCK_SIZE, long nsize, char* buffer);
+/* extract tokens from a block */
+struct tnode* ngram(unsigned int block_size, long nsize, char* buffer);
+/* extract tokens from a file */
 struct tnode *fngram(FILE *fp, long ngram_size);
 /* add ngram to binary tree */
 struct tnode *addtree(struct tnode *, char *);

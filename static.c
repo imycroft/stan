@@ -10,21 +10,22 @@ void help(void)
     printf("%s %s static analyser \n", PACKAGE, VERSION);
     printf("%s [-e] [-r] [-n] [-s] [-m] [-c [-H HEX]] [-v] [-X [-d DECISION]] [-i IN_FILE] [-o OUT_FILE] [-b NGRAM] [-B BLOCKSIZE] \n\n", PACKAGE);
 
-    printf("  -h                print this help\n");
-    printf("  -v                verbose mode\n");
-    printf("  -c                compute concentration of HEX\n");
-    printf("  -X                calculate all the features, use with -d M or B\n");
-    printf("  -n                build ngrams of length NGRAM\n");
-    printf("  -e                calculate the entropy of IN_FILE\n");
+    printf("  -h                Print this help\n");
+    printf("  -v                Verbose mode\n");
+    printf("  -c                Compute concentration of HEX\n");
+    printf("  -X                Calculate all the features, use with -d M or B\n");
+    printf("                    the output will be a CSV file\n");
+    printf("  -n                Build ngrams of length NGRAM\n");
+    printf("  -e                Calculate the entropy of IN_FILE\n");
     printf("  -r                Inverte the bytes of IN_FILE\n");
-    printf("  -s                calculate the simpson index\n");
-    printf("  -m                calculate the manhattan distance\n");
+    printf("  -s                Calculate the simpson index\n");
+    printf("  -m                Calculate the manhattan distance\n");
     printf("  -i [IN_FILE]      inpute file\n");
     printf("  -o [OUT_FILE]     output file\n");
     printf("  -b [NGRAM]        NGRAM size\n");
-    printf("  -B [BLOCKSIZE]    devide the file in input to blocks of BLOCKSIZE\n");
+    printf("  -B [BLOCKSIZE]    Devide the file in input to blocks of BLOCKSIZE\n");
     printf("                    if BLOCKSIZE = 0 the file will not be divided \n\n");
-    printf(" Default parametres: Block size = 1024, ngram = 1\n");
+    printf(" Default parametres: BLOCKSIZE = %d, NGRAM = %d\n", BLOCK_SIZE, NGRAM);
     printf(" Example: %s -e -i FILE.EXE -b 1 -B 256 > FILE.OUT\n\n", PACKAGE);
 }
 void entropyHelp()
@@ -71,17 +72,17 @@ long file_size(FILE *fp)
     rewind(fp);
     return size;
 }
-long blocks_count(FILE *fp, unsigned int BLOCK_SIZE)
+long blocks_count(FILE *fp, unsigned int block_size)
 {
-    return (file_size(fp) / BLOCK_SIZE) + 1;
+    return (file_size(fp) / block_size) + 1;
 }
 
-unsigned int *block_ngram(unsigned int BLOCK_SIZE, long nsize, unsigned char *buffer)
+unsigned int *block_ngram(unsigned int block_size, long nsize, unsigned char *buffer)
 {
     long array_size = pow(2, 8 * nsize);
     unsigned int *ngram_byte_values = (unsigned int *)malloc(array_size * sizeof(int));
     long ngram_value = 0;
-    for (int i = 0; i + nsize <= BLOCK_SIZE; i++)
+    for (int i = 0; i + nsize <= block_size; i++)
     {
         for (int j = 0; j < nsize; j++)
         {
@@ -93,12 +94,12 @@ unsigned int *block_ngram(unsigned int BLOCK_SIZE, long nsize, unsigned char *bu
     }
     return ngram_byte_values;
 }
-unsigned int *block_ngram_proto(unsigned int BLOCK_SIZE, long nsize, unsigned char *buffer)
+unsigned int *block_ngram_proto(unsigned int block_size, long nsize, unsigned char *buffer)
 {
-    long array_size = BLOCK_SIZE - nsize + 1;
+    long array_size = block_size - nsize + 1;
     unsigned int *ngram_byte_values = (unsigned int *)malloc(array_size * sizeof(int));
     long ngram_value = 0;
-    for (int i = 0; i + nsize <= BLOCK_SIZE; i++)
+    for (int i = 0; i + nsize <= block_size; i++)
     {
         for (int j = 0; j < nsize; j++)
         {
@@ -110,19 +111,19 @@ unsigned int *block_ngram_proto(unsigned int BLOCK_SIZE, long nsize, unsigned ch
     }
     return ngram_byte_values;
 }
-unsigned int *ngram_byte_values(unsigned int BLOCK_SIZE, long nsize, FILE *fp, long unsigned int *size, long *array_size_out)
+unsigned int *ngram_byte_values(unsigned int block_size, long nsize, FILE *fp, long unsigned int *size, long *array_size_out)
 {
     long array_size = pow(2, 8 * nsize);
     if (array_size_out)
         *array_size_out = array_size;
     unsigned int *ngram_byte_values = (unsigned int *)malloc(array_size * sizeof(int));
-    size_t byte_read = BLOCK_SIZE;
+    size_t byte_read = block_size;
 
-    unsigned char buffer_in[BLOCK_SIZE];
+    unsigned char buffer_in[block_size];
     long ngram_value = 0;
-    while (byte_read == BLOCK_SIZE)
+    while (byte_read == block_size)
     {
-        byte_read = fread(buffer_in, sizeof(char), BLOCK_SIZE, fp);
+        byte_read = fread(buffer_in, sizeof(char), block_size, fp);
         for (int i = 0; i + nsize <= byte_read; i++)
         {
             for (int j = 0; j < nsize; j++)
@@ -259,13 +260,13 @@ struct tnode *fngram(FILE *fp, long ngram_size)
     } while (byte_read == BUFFER_SIZE);
     return root;
 }
-struct tnode *ngram(unsigned int BLOCK_SIZE, long ngram_size, char *buffer)
+struct tnode *ngram(unsigned int block_size, long ngram_size, char *buffer)
 {
     struct tnode *root = NULL;
     unsigned char ptr[ngram_size];
     unsigned char *buff = NULL;
 
-    for (int i = 0; i < BLOCK_SIZE - ngram_size + 1; i++)
+    for (int i = 0; i < block_size - ngram_size + 1; i++)
     {
         buff = buffer + i;
         strncpy(ptr, buff, ngram_size);
