@@ -51,3 +51,5 @@ struct tnode *talloc(void);
 struct tnode* ngram_count(struct tnode* vector, unsigned char* value, long size);
 /* print the binary tree */
 void treeprint(struct tnode * node, FILE *fp, long nsize);
+/* Check if PE file */
+int check_pe(FILE *fp);

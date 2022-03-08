@@ -137,6 +137,17 @@ unsigned int *ngram_byte_values(unsigned int block_size, long nsize, FILE *fp, l
     }
     return ngram_byte_values;
 }
+int check_pe(FILE *fp) {
+    char mz[2];
+    int byte_read = 0;
+    byte_read = fread(mz, sizeof(unsigned char), 2, fp);
+    fclose(fp);
+    if (strncmp(mz, "MZ", 2) == 0)   
+        return 1;
+
+        return -1;
+    
+}
 int inverse_bytes(char *inputFile, char *outputFile)
 {
 
@@ -148,13 +159,13 @@ int inverse_bytes(char *inputFile, char *outputFile)
     }
     FILE *fp = NULL;
     FILE *fpout = NULL;
-    fp = fopen(inputFile, "r");
+    fp = fopen(inputFile, "rb");
     if (!fp)
     {
         printf("file not found!\n");
         return -1;
     }
-    fpout = fopen(outputFile, "w");
+    fpout = fopen(outputFile, "wb");
     if (!fpout)
     {
         printf("file not created!\n");

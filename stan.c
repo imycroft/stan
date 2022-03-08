@@ -13,6 +13,7 @@ int main(int argc, char *argv[])
     int verboseFlag = 0;
     int entropyFlag = 0;
     int inverseFlag = 0;
+    int peFlag = 0;
     int ngramFlag = 0;
     int simpsonFlag = 0;
     int manhatenFlag = 0;
@@ -30,7 +31,7 @@ int main(int argc, char *argv[])
 
     opterr = 0;
 
-    while ((c = getopt(argc, argv, "DXvhernsmci:o:b:B:H:d:")) != -1) // e entropy, r invert, n ngram
+    while ((c = getopt(argc, argv, "DXPvhernsmci:o:b:B:H:d:")) != -1) // e entropy, r invert, n ngram, P PE
     {
         switch (c)
         {
@@ -39,6 +40,9 @@ int main(int argc, char *argv[])
             break;
         case 'X': // csvfile
             csvFlag = 1;
+            break;
+        case 'P':
+            peFlag = 1;
             break;
         case 'c':
             concentrationFlag = 1;
@@ -133,7 +137,7 @@ int main(int argc, char *argv[])
         //
         return -2;
     }
-    if (entropyFlag + inverseFlag + ngramFlag + simpsonFlag + concentrationFlag + manhatenFlag + csvFlag != 1 || helpFlag == 1)
+    if (entropyFlag + inverseFlag + ngramFlag + simpsonFlag + concentrationFlag + manhatenFlag + csvFlag + peFlag != 1 || helpFlag == 1)
     {
         help();
         return -1;
@@ -152,7 +156,7 @@ int main(int argc, char *argv[])
             struct tnode *vector = NULL;
             unsigned char buffer_in[block_size];
             size_t byte_read = 0;
-            printf("E1,S1,M1,E2,S2,M2,E3,S3,M3,E4,S4,M4,Decision\n");
+            if (verboseFlag == 1) printf("E1,S1,M1,E2,S2,M2,E3,S3,M3,E4,S4,M4,Decision\n");
             for (long i = 0; i < blockCount; i++)
             {
                 // get the block ngram
@@ -222,6 +226,15 @@ int main(int argc, char *argv[])
 
         return inverse_bytes(inputFile, outputFile);
     }
+    // if check exec
+    if (peFlag == 1) 
+    {
+        if (verboseFlag == 1)
+            printf("PE check\n");
+         
+        return check_pe(fp);
+    }
+    
     // if ngram extraction
     if (ngramFlag == 1)
     {
