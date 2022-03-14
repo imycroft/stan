@@ -8,7 +8,7 @@ void help(void)
 {
     // Dvhernsi:o:b:B:
     printf("%s %s static analyser \n", PACKAGE, VERSION);
-    printf("%s [-e] [-r] [-n] [-s] [-m] [-c [-H HEX]] [-v] [-X [-d DECISION]] [-i IN_FILE] [-o OUT_FILE] [-b NGRAM] [-B BLOCKSIZE] \n\n", PACKAGE);
+    printf("%s [-e] [-r] [-n] [-s] [-m] [-P] [-c [-H HEX]] [-v] [-X [-d DECISION]] [-i IN_FILE] [-o OUT_FILE] [-b NGRAM] [-B BLOCKSIZE] \n\n", PACKAGE);
 
     printf("  -h                Print this help\n");
     printf("  -v                Verbose mode\n");
@@ -20,6 +20,7 @@ void help(void)
     printf("  -r                Inverte the bytes of IN_FILE\n");
     printf("  -s                Calculate the simpson index\n");
     printf("  -m                Calculate the manhattan distance\n");
+    printf("  -P                Check if a file is a PE file returns 1 if it is true\n");
     printf("  -i [IN_FILE]      inpute file\n");
     printf("  -o [OUT_FILE]     output file\n");
     printf("  -b [NGRAM]        NGRAM size\n");
